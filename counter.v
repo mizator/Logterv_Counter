@@ -33,8 +33,9 @@ module counter(
 	output 			o_ovf_flg,		// Overflow flag
 	output 	[15:0]	o_cnt 			// Counter value
 );
-parameter MAX    = 4'hFFFF;
-parameter BOTTOM = 4'H0000;
+parameter MAX    = 16'hFFFF;
+parameter BOTTOM = 16'H0000;
+
 //---------------------------------------------
 //	Counter
 //---------------------------------------------

@@ -63,8 +63,8 @@ parameter		ADDR_OCR = 4'b0011;
 reg 	[15:0] 	ICR;
 parameter		ADDR_ICR = 4'b0100;		
 //---------------------------------------------
-parameter MAX    = 4'hFFFF;
-parameter BOTTOM = 4'H0000;
+parameter MAX    = 16'hFFFF;
+parameter BOTTOM = 16'H0000;
 //---------------------------------------------
 // Timer Counter Status Register
 reg 	[15:0] 	TCST;
