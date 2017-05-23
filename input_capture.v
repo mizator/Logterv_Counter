@@ -29,7 +29,7 @@ module input_capture(
 	input			i_cnt_en,		// Count enable
 
 	output			o_ic_flg,		// Input Capture Flag
-	output 	[15:0]	o_cnt 			// Counter value
+	output 	[15:0]	o_cnt_data 		// Counter value
 );
 
 //---------------------------------------------
@@ -84,6 +84,6 @@ end
 // Output signal generation
 //---------------------------------------------
 assign o_ic_flg = w_cap_rise;
-assign o_cnt = r_cnt;
+assign o_cnt_data = r_cnt;
 //---------------------------------------------
 endmodule

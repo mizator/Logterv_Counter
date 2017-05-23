@@ -21,7 +21,7 @@
 module prescaler(
 	input 			i_sysclk, 		// System clock
 	input 			i_sysrst, 		// System reset
-	input 			i_mod_en, 		// Module enable
+	input 			i_module_en, 	// Module enable
 	input			i_ld, 			// Load divider value
 	input 	[7:0] 	i_ld_data, 		// Divider value
 	output 			o_sclk, 		// Sck output
@@ -43,6 +43,7 @@ begin
 end
 //---------------------------------------------
 
+
 //---------------------------------------------
 // Counter
 //---------------------------------------------
@@ -51,7 +52,7 @@ always @ (posedge i_sysclk)
 begin
 	if (i_sysrst)
 		r_cntr <= 8'b0;
-	else if(i_mod_en) begin
+	else if(i_module_en) begin
 		if(r_cntr == r_div_value)		
 			r_cntr <= 8'b0;
 		else	
@@ -59,6 +60,7 @@ begin
 	end
 end
 //---------------------------------------------
+
 
 //---------------------------------------------
 // Sck register
@@ -68,18 +70,19 @@ always @ (posedge i_sysclk)
 begin
 	if (i_sysrst)
 		r_sclk <= 1'b0;
-	else if(~i_mod_en)
+	else if(~i_module_en)
 		r_sclk <= 1'b0;
 	else if(r_cntr == r_div_value)
 		r_sclk <= ~r_sclk;
 end
 //---------------------------------------------
 
+
 //---------------------------------------------
 // Output signal generation		
 //---------------------------------------------
-assign o_sclk 	   = ( r_sclk  &   i_mod_en);  				
-assign o_sclk_rise = (~r_sclk) & (r_cntr == r_div_value) & (i_mod_en);
-assign o_sclk_fall = ( r_sclk) & (r_cntr == r_div_value) & (i_mod_en);
+assign o_sclk 	   = ( r_sclk  &   i_module_en);  				
+assign o_sclk_rise = (~r_sclk) & (r_cntr == r_div_value) & (i_module_en);
+assign o_sclk_fall = ( r_sclk) & (r_cntr == r_div_value) & (i_module_en);
 //---------------------------------------------
 endmodule
