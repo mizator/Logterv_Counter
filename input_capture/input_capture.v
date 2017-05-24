@@ -62,19 +62,25 @@ assign w_cap_rise = ((~r_icap_2) & r_icap_1);
 //---------------------------------------------
 //	Input Capture Counter
 //---------------------------------------------
-reg [15:0] r_cnt;
+reg [15:0] 	r_cnt;
+reg 		r_ic_flg;
 always @ (posedge i_sysclk)
 begin
-	if(i_sysrst)								// System reset
+	if(i_sysrst)begin							// System reset
 		r_cnt <= 16'h0;
+		r_ic_flg <= 0;
+	end
 	else 
 	begin
 		if(i_clr)								// Clear
 			r_cnt <= 16'h0;
 		else if(i_cnt_en)						// If counting enabled
 		begin
-			if (w_cap_rise)
-					r_cnt <= r_cnt + 1'b1;		// Counting impulse
+			if (w_cap_rise) begin
+				r_cnt <= r_cnt + 1'b1;		// Counting impulse
+				r_ic_flg <= 1;
+			end
+			else r_ic_flg <= 0;	
 		end
 	end
 end
@@ -83,7 +89,7 @@ end
 //---------------------------------------------
 // Output signal generation
 //---------------------------------------------
-assign o_ic_flg = w_cap_rise;
+assign o_ic_flg = r_ic_flg;
 assign o_cnt_data = r_cnt;
 //---------------------------------------------
 endmodule

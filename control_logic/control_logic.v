@@ -109,7 +109,7 @@ parameter		ADDR_TCST 	= 4'b0110;
 //TCST[0]	Overflow Interrupt
 //TCST[1]	Output Capture Interrupt
 //TCST[2]	Input Capture Interrupt
-//TCST[3]	Input Capture Not Empty 			// Clearing this bit will clear IRC Register
+//TCST[3]	Input Capture Not Empty 			// Clearing this bit will clear ICR Register
 //---------------------------------------------
 parameter MAX    = 16'hFFFF;
 parameter BOTTOM = 16'H0000;
@@ -122,6 +122,7 @@ reg [15:0] 	r_obus_data;
 reg [15:0] 	r_ibus_data;
 reg [ 3:0] 	r_ibus_addr;
 reg 		r_ack;
+reg 		r_bus_w;
 //---------------------------------------------
 always @ (posedge i_sysclk)
 begin
@@ -129,10 +130,23 @@ begin
 	begin
 		r_obus_data <= 16'b0;
 		r_ibus_data <= 16'b0;
-	end
+		r_ibus_addr <= 4'b0;
+		r_ack 		<= 0;
+		r_bus_w 	<= 0;
+
+		TCCR  		<= 16'b0;
+		TCCR2 		<= 16'b0;
+		TCNT 		<= 16'b0;
+		OCR   		<= 16'b0;
+		ICR 		<= 16'b0; 
+		TCST 		<= 16'b0;
+	end 
 	else begin
 		if (i_bus_select == 1'b1) begin
-			if(~i_bus_wr)begin 
+			if(~i_bus_wr)begin
+				r_bus_w = 0; 							//Register Read
+				r_ibus_addr <= 4'b0;
+				r_ibus_data <= 16'b0;
 				case (i_reg_addr)
 		  			ADDR_TCCR  : r_obus_data <= TCCR;
 		  			ADDR_TCCR2 : r_obus_data <= TCCR2;
@@ -143,130 +157,54 @@ begin
 		  			default    : r_obus_data <= 16'b0;
 				endcase
 			end
-			else if(i_bus_wr) begin
+			else if(i_bus_wr) begin 					//Register Read
+				r_bus_w = 1;
+				r_ibus_addr <= i_reg_addr;
 				r_ibus_data <= i_bus_data;
 				case (i_reg_addr)
-		  			ADDR_TCCR  : r_ibus_addr <= ADDR_TCCR;
-		  			ADDR_TCCR2 : r_ibus_addr <= ADDR_TCCR2;
-		  			ADDR_TCNT  : r_ibus_addr <= ADDR_TCNT;
-		  			ADDR_OCR   : r_ibus_addr <= ADDR_OCR;
-		  			ADDR_ICR   : r_ibus_addr <= ADDR_ICR;
-		  			ADDR_TCST  : r_ibus_addr <= ADDR_TCST;
-		  			default    : r_ibus_addr <= 16'b0;
+		  			ADDR_TCCR  : TCCR 	<= i_bus_data;		
+		  			ADDR_TCCR2 : TCCR2 	<= i_bus_data;
+		  			ADDR_TCNT  : TCNT 	<= i_bus_data;
+		  			ADDR_OCR   : OCR 	<= i_bus_data;
+		  			ADDR_ICR   : ICR 	<= i_bus_data;
+		  			ADDR_TCST  : TCST 	<= i_bus_data;
+		  			default    : ?? <= 16'b0;
 				endcase
 			end
-			r_ack <= 1'b1;
+			r_ack <= 1;
 		end
-		else r_ack <= 1'b0;
+		else begin
+			r_ack <= 0;
+			TCNT <= i_cnt_data;
+			ICR <= i_cap_cnt_data;
+			if (TCCR[1]) begin 														// Global   		Interrupt Enable
+				TCST <= {12'b0  ,	(|ICR || i_cap_ic_flg)	 ? 1'b1 : 1'b0, 3'b0};			// ICR Not Empty Bit
+									//(TCCR[4] & i_cap_ic_flg) ? 1'b1 : TCST[2],0,0};		// Input    Capture	Interrupt Enable
+						 			//(TCCR[3] &  cap_ocm_flg) ? 1'b1 : TCST[1], 		// Compare  Match 	Interrupt Enable
+						 			//(TCCR[2] &  cnt_ovf_flg) ? 1'b1 : TCST[0]};	// Overflow 		Interrupt Enable
+			end	
+		end
 	end
 end
 //---------------------------------------------
 // Acknowledge Generation
 //---------------------------------------------
 assign o_bus_data = (i_bus_select & ~(i_bus_wr)) ? r_obus_data : 16'b0;
-assign o_bus_ack  =  r_ack;
+assign o_bus_ack  =  (r_ack)?1:0;
 //---------------------------------------------
 
 
 //---------------------------------------------
-// TCCR Register Write
+// Interrupt Generation
 //---------------------------------------------
-always @(posedge i_sysclk) 
-begin
-	if (i_sysrst) 
-		TCCR <= 16'b0;
-	else if(r_ibus_addr == ADDR_TCCR)
-		TCCR <= r_ibus_data;
-end
-//---------------------------------------------
-
-
-//---------------------------------------------
-// TCCR2 Register Write
-//---------------------------------------------
-always @(posedge i_sysclk) 
-begin
-	if (i_sysrst) 
-		TCCR2 <= 16'b0;
-	else if(r_ibus_addr == ADDR_TCCR2)
-		TCCR2 <= r_ibus_data;
-end
-//---------------------------------------------
-
-
-//---------------------------------------------
-// TCNT Register Write
-//---------------------------------------------
-always @(posedge i_sysclk) 
-begin
-	if (i_sysrst) 
-		TCNT <= 16'b0;
-	else if(r_ibus_addr == ADDR_TCNT)
-		TCNT <= r_ibus_data;
-	else
-		TCNT <= i_cnt_data;
-end
-//---------------------------------------------
-
-
-//---------------------------------------------
-// OCR Register Write
-//---------------------------------------------
-always @(posedge i_sysclk) 
-begin
-	if (i_sysrst) 
-		OCR <= 16'b0;
-	else if(r_ibus_addr == ADDR_OCR)
-		OCR <= r_ibus_data;
-end
-//---------------------------------------------
-
-
-//---------------------------------------------
-// ICR Write
-//---------------------------------------------
-always @(posedge i_sysclk) 
-begin
-	if (i_sysrst) 
-		ICR <= 16'b0;
-	else
-		ICR <= i_cap_cnt_data;
-end
-//---------------------------------------------
-
-
-//---------------------------------------------
-// TCST Register Write
-//---------------------------------------------
-reg 	r_cap_clr;
-wire 	w_cap_clr;
-//---------------------------------------------
-always @(posedge i_sysclk) 
-begin
-	if (i_sysrst) 
-		TCST <= 16'b0;
-	else if(r_ibus_addr == ADDR_TCST)begin
-		TCST 		<=   r_ibus_data;
-		r_cap_clr 	<= ~(r_ibus_data[3]);			// Input Capture Register Clear
-	end
-	else begin 			
-		if (TCCR[1]) begin 														// Global   		Interrupt Enable
-			TCST <= {12'b0  ,	(|ICR)					 ? 1'b1 : 1'b0,	3'b000};		// ICR Not Empty Bit
-								//(TCCR[4] & i_cap_ic_flg) ? 1'b1 : TCST[2],		// Input    Capture	Interrupt Enable
-						 		//(TCCR[3] &  cap_ocm_flg) ? 1'b1 : TCST[1], 		// Compare  Match 	Interrupt Enable
-						 		//(TCCR[2] & cnt_ovf_flg ) ? 1'b1 : TCST[0]};	// Overflow 		Interrupt Enable
-		end
-	end
-end
-//---------------------------------------------
-assign w_cap_clr = r_cap_clr;
+assign  o_int_flg = (|(TCST[2:0]));				// Status Register Interrupt Flags
 //---------------------------------------------
 
 
 //---------------------------------------------
 // TOP Value Setting
 //---------------------------------------------
-reg [7:0] TOP;
+reg [15:0] TOP;
 //---------------------------------------------
 always @(posedge i_sysclk) 
 begin
@@ -289,19 +227,13 @@ begin
 end
 //---------------------------------------------
 
-//---------------------------------------------
-// Interrupt Generation
-//---------------------------------------------
-assign  o_int_flg = (TCST[2:0] != 3'b000);		// Status Register Interrupt Flags
-//---------------------------------------------
-
 
 //---------------------------------------------
 // Prescaler Control Signals
 //---------------------------------------------
-assign o_prs_ld_data = TCCR2[7:0];				// Prescale Value
-assign o_prs_ld = (r_ibus_addr == ADDR_TCCR2);
-assign o_prs_en = (TCCR[0]);					// Global Enable
+assign o_prs_ld_data = TCCR2[7:0];							// Prescale Value
+assign o_prs_ld = ((r_bus_w) && (r_ibus_addr == ADDR_TCCR2));
+assign o_prs_en = (TCCR[5]);								// Counting Enable
 //---------------------------------------------
 
 
@@ -309,7 +241,7 @@ assign o_prs_en = (TCCR[0]);					// Global Enable
 // Input Capture Control Signals
 //---------------------------------------------
 assign o_cap_en  =  (TCCR[7]);					// Input Capture Enable
-assign o_cap_clr =	(w_cap_clr);				// Input Capture Clear
+assign o_cap_clr =	((r_bus_w) && (r_ibus_addr == ADDR_TCST) && (~(r_ibus_data[3])));	//nem biztos hogy jó				// Input Capture Clear
 //---------------------------------------------
 
 
@@ -318,22 +250,11 @@ assign o_cap_clr =	(w_cap_clr);				// Input Capture Clear
 //---------------------------------------------
 assign o_cnt_ld_data = TCNT;
 
-reg r_cnt_ld;
-always @(posedge i_sysclk) 
-begin
-	if (i_sysrst) begin
-		r_cnt_ld <= 0;
-	end
-	else begin
-		r_cnt_ld <= (r_ibus_addr == ADDR_TCNT);		
-	end
-end
-
-assign o_cnt_ld  = r_cnt_ld;
-assign o_cnt_clr = (~(TCCR[5]));				// ~Counting Enable
+//assign o_cnt_en  = (TCCR[5] && );				// Counting Enable
+assign o_cnt_ld  = ((r_bus_w) && (r_ibus_addr == ADDR_TCNT));
+//assign o_cnt_clr = (~(TCCR[5]));				// nem jó
 assign o_cnt_dir =   (TCCR[6]);					//  Counting Direction
 //---------------------------------------------
-
 
 //---------------------------------------------
 // Waveform Generator

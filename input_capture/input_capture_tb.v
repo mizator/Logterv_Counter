@@ -25,7 +25,7 @@ module input_capture_tb;
     reg			    r_cap_pin;
     reg				r_clr;
     reg 			r_en;
-    wire 	[15:0] 	w_cnt;
+    wire 	[15:0] 	cnt_data;
 
 
 //---------------------------------------------
@@ -38,7 +38,7 @@ input_capture uut (
 	.i_clr(r_clr),		
 	.i_cnt_en(r_en),			
 	.o_ic_flg(ic_flg),
-	.o_cnt_data(w_cnt)
+	.o_cnt_data(cnt_data)
 );
 //---------------------------------------------
 

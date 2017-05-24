@@ -23,16 +23,16 @@ module control_logic_tb;
 	reg 			r_clk;
     reg 			r_rst;
 
-	wire 			w_int_flg;
-	wire 			w_cout_pin;
+	wire 			int_flg;
+	wire 			cout_pin;
 	reg 			r_cap_pin;
 
 	reg 			r_bus_select;
 	reg 			r_bus_wr;
 	reg		[3:0]	r_reg_addr;
 	reg		[15:0]	r_i_bus_data;
-	wire	[15:0]	w_o_bus_data;
-	wire 			w_bus_ack;
+	wire	[15:0]	o_bus_data;
+	wire 			bus_ack;
 
 //	wire 			w_prs_en;
 //	wire 			w_prs_ld;
@@ -70,15 +70,15 @@ control_logic uut(
 	.i_sysclk(r_clk),					// System Clock
 	.i_sysrst(r_rst),					// System Reset
 
-	.o_int_flg(w_int_flg),				// Input Capture Pin
-	.o_out_pin(w_cout_pin),				// Output Capture Pin
+	.o_int_flg(int_flg),				// Input Capture Pin
+	.o_out_pin(cout_pin),				// Output Capture Pin
 
 	.i_bus_select(r_bus_select),		// Select Periphery
 	.i_bus_wr(r_bus_wr),				// Bus Write
 	.i_reg_addr(r_reg_addr),			// Register Address
 	.i_bus_data(r_i_bus_data),			// Data Input
-	.o_bus_data(w_o_bus_data),			// Data Output
-	.o_bus_ack(w_bus_ack),				// Bus Acknowledge
+	.o_bus_data(o_bus_data),			// Data Output
+	.o_bus_ack(bus_ack),				// Bus Acknowledge
 
 	.o_prs_en(prs_en),					// Prescaler Enable
 	.o_prs_ld(prs_ld),					// Prescaler Load
@@ -158,7 +158,7 @@ begin
 		r_i_bus_data 	<= bus_data;	// Write data to bus
 		r_bus_wr 		<= 1'b1;		// Write Select 
 		r_bus_select 	<= 1'b1;		// Select Target
-	wait(w_bus_ack);					// Wait For ACK
+	wait(bus_ack);						// Wait For ACK
 	#10 r_bus_wr 		<= 1'b0;		// Release Write
 		r_bus_select 	<= 1'b0;		// Release Target
 end
@@ -174,7 +174,7 @@ begin
 	#10 r_reg_addr 		<= reg_addr;	// Select Register
 		r_bus_wr 		<= 1'b0;		// Read Select
 		r_bus_select 	<= 1'b1;		// Select Target
-	wait(w_bus_ack);					// Wait For ACK
+	wait(bus_ack);						// Wait For ACK
 	#10 r_bus_wr 		<= 1'b0;		// Release Write
 		r_bus_select 	<= 1'b0;		// Release Target
 end
@@ -195,19 +195,24 @@ initial begin
 //	r_prs_sclk = 0;
 //	r_prs_sclk_rise = 0;
 //	r_prs_sclk_fall = 0;
-	
 //	r_cnt_data = 16'b0;	
-
-	r_cap_ic_flg = 0;
-	r_cap_cnt_data = 0;
+//	r_cap_ic_flg = 0;
+//	r_cap_cnt_data = 0;
 
     #60 r_rst = 0; 
-    bus_write(ADDR_TCCR , 16'b0000_0000_0000_0001);
-    bus_write(ADDR_TCCR2, 16'b0000_0000_0000_0011);
-    bus_write(ADDR_TCNT , 16'b0000_0000_0000_0111);
-    bus_write(ADDR_OCR  , 16'b0000_0000_0000_1111);
-    bus_write(ADDR_ICR  , 16'b0000_0000_0001_1111);
-    bus_write(ADDR_TCST , 16'b0000_0000_0011_1111);
+    bus_write(ADDR_TCCR , 16'b0000_0000_0111_1111);		// All interrupts enabled
+    bus_write(ADDR_TCCR2, 16'b0000_0000_0000_1111);		// TOP = 0xFF, Prescale 0x0F;
+ //   bus_write(ADDR_TCNT , 16'b0000_0000_0000_0111);
+    bus_write(ADDR_OCR  , 16'b0000_1111_0000_1111);
+ //   bus_write(ADDR_ICR  , 16'b0000_0000_0001_1111);
+ //   bus_write(ADDR_TCST , 16'b0000_0000_0011_1111);
+    #30;
+    bus_read (ADDR_TCCR );
+    bus_read (ADDR_TCCR2);
+//    bus_read (ADDR_TCNT);
+    bus_read (ADDR_OCR );
+//    bus_read (ADDR_ICR);
+//    bus_read (ADDR_TCST);
 end
 
 
