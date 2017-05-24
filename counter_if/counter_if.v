@@ -22,7 +22,6 @@
 module counter_if(	
 	input			i_sysclk,		// System Clock
 	input			i_sysrst,		// System Reset
-	input 			i_module_en,	// Module enable
 
 	input 			i_cap_pin,		// Input Capture Pin
 	output 			o_out_pin,		// Output Capture Pin
@@ -67,7 +66,6 @@ wire [15:0] cap_cnt_data;
 control_logic control_logic(
 	.i_sysclk(i_sysclk), 			
     .i_sysrst(i_sysrst),			
-	.i_module_en(i_module_en),
 	.o_int_flg(o_int_flg),
 	.o_out_pin(o_out_pin),
 
@@ -90,7 +88,6 @@ control_logic control_logic(
 	.o_cnt_dir(cnt_dir),
 	.o_cnt_clr(cnt_clr),
 	.o_cnt_ld_data(cnt_ld_data),
-	.i_cnt_ovf_flg(cnt_ovf_flg),
 	.i_cnt_data(cnt_data),
 
 	.o_cap_en(cap_en),
@@ -127,8 +124,7 @@ counter counter(
 	.i_ld(cnt_ld),					
 	.i_dir(cnt_dir),				
 	.i_clr(cnt_clr),				
-	.i_ld_data(cnt_ld_data),		
-	.o_ovf_flg(cnt_ovf_flg),		
+	.i_ld_data(cnt_ld_data),			
 	.o_cnt(cnt_data)				
 );
 //---------------------------------------------

@@ -21,11 +21,11 @@
 module control_logic(
 	input 			i_sysclk, 			// System clock
 	input 			i_sysrst, 			// System reset
-	input			i_module_en,		// Module enable
 
 
 	output 			o_int_flg,			// Interrupt Flag
 	output 			o_out_pin,			// Output Pin
+
 
 	input 			i_bus_select,		// Select Periphery
 	input 			i_bus_wr,			// Bus Write
@@ -48,13 +48,12 @@ module control_logic(
 	output 			o_cnt_dir, 			// Counting Direction
 	output 			o_cnt_clr,			// Counter  Clear
 	output 	[15:0]	o_cnt_ld_data,		// Counter  Load Data
-	input 			i_cnt_ovf_flg,		// Counter  Overflow Flag
 	input 	[15:0]	i_cnt_data,			// Counter 	Data
 
 
 	output			o_cap_en,			// Input Capture Enable
 	output			o_cap_clr,			// Input Capture Clear
-	input 			i_cap_ic_flg,			// Input Capture Flag
+	input 			i_cap_ic_flg,		// Input Capture Flag
 	input 	[15:0]	i_cap_cnt_data		// Input Capture Data
 
 );
@@ -65,22 +64,32 @@ module control_logic(
 // Timer Counter Control Register
 reg 	[15:0] 	TCCR;
 parameter		ADDR_TCCR 	= 4'b0001;			
-//TCCR[0]		Global enable
-//TCCR[1]		Normal / Compare  	mode
-//TCCR[2]		Single / Periodic 	mode
-//TCCR[3]		Fast PWM 			mode
-//TCCR[4]		Global   		Interrupt Enable
-//TCCR[5]		Overflow 		Interrupt Enable
-//TCCR[6]		Output Captuer 	Interrupt Enable
-//TCCR[7]		Input Capture 	Interrupt Enable
-//TCCR[15:8] 	Prescale value
+//TCCR[0]		Global 					  Enable	(0 - DIS _ 1 - EN)
+//TCCR[1]		Global   		Interrupt Enable 	(0 - DIS _ 1 - EN)
+//TCCR[2]		Overflow 		Interrupt Enable 	(0 - DIS _ 1 - EN)
+//TCCR[3]		Output Compare 	Interrupt Enable 	(0 - DIS _ 1 - EN)
+//TCCR[4]		Input Capture 	Interrupt Enable	(0 - DIS _ 1 - EN)
+//TCCR[5]		Counting 				  Enable	(0 - DIS _ 1 - EN)
+//TCCR[6]		Counting 		Direction			(0 - DWN _ 1 - UP)			
+//TCCR[7]		Input 			Capture   Enable	(0 - DIS _ 1 - EN)
+//TCCR[8]		Normal  	/	Compare   Mode		(0 - NOR _ 1 - CC)
+//TCCR[9]		Single 		/ 	Periodic  Mode 		(0 - SIN _ 1 - PER)
+//TCCR[10]		Fast PWM 				  Mode 		(0 - DIS _ 1 - EN)
+//TCCR[11]		Output Pin 		Polarity			(0 - NOR _ 1 - NEG)
 //---------------------------------------------
 // Timer Counter Command Register 2
 reg 	[15:0] 	TCCR2;
 parameter		ADDR_TCCR2 	= 4'b0010;
-//TCCR2[0]		// Counter Enable
-//TCCR2[1]		// Counter direction
-//TCCR2[2]		// Input Capture Enable
+//TCCR2[ 7:0] 	Prescale value
+//TCCR2[11:8]	TOP 	 value
+parameter		BIT08		= 4'b0001;
+parameter		BIT09		= 4'b0010;
+parameter		BIT10		= 4'b0011;
+parameter		BIT11		= 4'b0100;
+parameter		BIT12		= 4'b0101;
+parameter		BIT13		= 4'b0110;
+parameter		BIT14		= 4'b0111;
+parameter		BIT15		= 4'b1000;	
 //---------------------------------------------
 // Timer-Counter Register, current counter value
 reg 	[15:0] 	TCNT;
@@ -99,7 +108,8 @@ reg 	[15:0] 	TCST;
 parameter		ADDR_TCST 	= 4'b0110;
 //TCST[0]	Overflow Interrupt
 //TCST[1]	Output Capture Interrupt
-//TCST[2]	Input Capture Interrupt	
+//TCST[2]	Input Capture Interrupt
+//TCST[3]	Input Capture Not Empty 			// Clearing this bit will clear IRC Register
 //---------------------------------------------
 parameter MAX    = 16'hFFFF;
 parameter BOTTOM = 16'H0000;
@@ -228,69 +238,78 @@ end
 //---------------------------------------------
 // TCST Register Write
 //---------------------------------------------
+reg 	r_cap_clr;
+wire 	w_cap_clr;
+//---------------------------------------------
 always @(posedge i_sysclk) 
 begin
 	if (i_sysrst) 
 		TCST <= 16'b0;
 	else if(r_ibus_addr == ADDR_TCST)begin
-		TCST <= r_ibus_data;
+		TCST 		<=   r_ibus_data;
+		r_cap_clr 	<= ~(r_ibus_data[3]);			// Input Capture Register Clear
 	end
-	else begin 			//Concatenate TCST new value from the interrupt flags
-		TCST <= {13'b0  ,(w_ic_flg)  ? 1'b1 : TCST[2],
-						 (w_ocm_flg) ? 1'b1 : TCST[1],
-						 (w_ovf_flg) ? 1'b1 : TCST[0]};
+	else begin 			
+		if (TCCR[1]) begin 														// Global   		Interrupt Enable
+			TCST <= {12'b0  ,	(|ICR)					 ? 1'b1 : 1'b0,	3'b000};		// ICR Not Empty Bit
+								//(TCCR[4] & i_cap_ic_flg) ? 1'b1 : TCST[2],		// Input    Capture	Interrupt Enable
+						 		//(TCCR[3] &  cap_ocm_flg) ? 1'b1 : TCST[1], 		// Compare  Match 	Interrupt Enable
+						 		//(TCCR[2] & cnt_ovf_flg ) ? 1'b1 : TCST[0]};	// Overflow 		Interrupt Enable
+		end
 	end
 end
 //---------------------------------------------
+assign w_cap_clr = r_cap_clr;
+//---------------------------------------------
 
+
+//---------------------------------------------
+// TOP Value Setting
+//---------------------------------------------
+reg [7:0] TOP;
+//---------------------------------------------
+always @(posedge i_sysclk) 
+begin
+	if (i_sysrst)
+		TOP <= MAX;
+	else if (|TCCR2[11:8]) 
+	begin
+		case (TCCR2[11:8])
+		  	BIT08  : TOP <= 16'h00FF;
+		  	BIT09  : TOP <= 16'h01FF;
+		  	BIT10  : TOP <= 16'h03FF;
+		  	BIT11  : TOP <= 16'h07FF;
+		  	BIT12  : TOP <= 16'h0FFF;
+		  	BIT13  : TOP <= 16'h1FFF;
+		  	BIT14  : TOP <= 16'h3FFF;
+		  	BIT15  : TOP <= 16'h7FFF;
+		  	default: TOP <= MAX;
+		endcase
+	end
+end
+//---------------------------------------------
 
 //---------------------------------------------
 // Interrupt Generation
 //---------------------------------------------
-reg  r_ovf_flg;		
-reg  r_ocm_flg;
-reg  r_ic_flg;
-wire w_ovf_flg;
-wire w_ocm_flg;
-wire w_ic_flg;
-//---------------------------------------------
-always @(posedge i_sysclk) 
-begin
-	if (i_sysrst) 
-	begin
-		r_ovf_flg <= 1'b0;
-		r_ocm_flg <= 1'b0;
-		r_ic_flg  <= 1'b0;
-	end
-	else if (TCCR[4]) begin
-		 	r_ovf_flg <= (TCCR[5] & i_cnt_ovf_flg) ? 1'b1 : 1'b0;
-		 	//r_ocm_flg <= (TCCR[6] &   cap_ocm_flg) ? 1'b1 : 1'b0;
-		 	r_ic_flg  <= (TCCR[7] & i_cap_ic_flg)  ? 1'b1 : 1'b0;
-	end
-end
-//---------------------------------------------
-assign w_ovf_flg = r_ovf_flg;
-assign w_ocm_flg = r_ocm_flg;
-assign w_ic_flg  =  r_ic_flg;
-//---------------------------------------------
-assign  o_int_flg = (TCST[2:0] != 3'b000);
+assign  o_int_flg = (TCST[2:0] != 3'b000);		// Status Register Interrupt Flags
 //---------------------------------------------
 
 
 //---------------------------------------------
 // Prescaler Control Signals
 //---------------------------------------------
-assign o_prs_ld_data = TCCR[15:8];
-assign o_prs_ld = (r_ibus_addr == ADDR_TCCR);
-assign o_prs_en = (TCCR[0]);
+assign o_prs_ld_data = TCCR2[7:0];				// Prescale Value
+assign o_prs_ld = (r_ibus_addr == ADDR_TCCR2);
+assign o_prs_en = (TCCR[0]);					// Global Enable
 //---------------------------------------------
 
 
 //---------------------------------------------
 // Input Capture Control Signals
 //---------------------------------------------
-assign o_cap_clr = (~(TCCR2[2]));
-assign o_cap_en  =   (TCCR2[2]);
+assign o_cap_en  =  (TCCR[7]);					// Input Capture Enable
+assign o_cap_clr =	(w_cap_clr);				// Input Capture Clear
 //---------------------------------------------
 
 
@@ -298,10 +317,33 @@ assign o_cap_en  =   (TCCR2[2]);
 // Counter Control Signals
 //---------------------------------------------
 assign o_cnt_ld_data = TCNT;
-assign o_cnt_ld  = (r_ibus_addr == ADDR_TCNT);
-assign o_cnt_clr = (~(TCCR2[0]));	
-assign o_cnt_dir =   (TCCR2[1]);
+
+reg r_cnt_ld;
+always @(posedge i_sysclk) 
+begin
+	if (i_sysrst) begin
+		r_cnt_ld <= 0;
+	end
+	else begin
+		r_cnt_ld <= (r_ibus_addr == ADDR_TCNT);		
+	end
+end
+
+assign o_cnt_ld  = r_cnt_ld;
+assign o_cnt_clr = (~(TCCR[5]));				// ~Counting Enable
+assign o_cnt_dir =   (TCCR[6]);					//  Counting Direction
 //---------------------------------------------
 
+
+//---------------------------------------------
+// Waveform Generator
+//---------------------------------------------
+//TCCR[0]		Global 					  Enable	(0 - DIS _ 1 - EN)
+//TCCR[8]		Normal  	/	Compare   Mode		(0 - NOR _ 1 - CC)
+//TCCR[9]		Single 		/ 	Periodic  Mode 		(0 - SIN _ 1 - PER)
+//TCCR[10]		Fast PWM 				  Mode 		(0 - DIS _ 1 - EN)
+//TCCR[11]		Output Pin 		Polarity			(0 - NOR _ 1 - INV)
+
+//assign o_out_pin = (TCCR[11]) ? : ~ ;
 //---------------------------------------------
 endmodule

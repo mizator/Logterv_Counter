@@ -24,17 +24,14 @@ module counter(
 	input			i_sysrst,		// System Reset
 
 	input			i_ld,			// Load
-	input	[15:0]	i_ld_data,	// Load data
+	input	[15:0]	i_ld_data,		// Load data
 
 	input			i_clr,			// Clear
 	input			i_cnt_en,		// Count enable
 	input			i_dir,			// Direction
 
-	output 			o_ovf_flg,		// Overflow flag
-	output 	[15:0]	o_cnt 			// Counter value
+	output 	[15:0]	o_cnt_data		// Counter value
 );
-parameter MAX    = 16'hFFFF;
-parameter BOTTOM = 16'H0000;
 
 //---------------------------------------------
 //	Counter
@@ -52,7 +49,7 @@ begin
 			r_cnt <= 16'h0;
 		else if(i_cnt_en)				// If counting enabled
 		begin
-			if(i_dir == 1'b0)				// Counting downward
+			if(i_dir == 1'b0)			// Counting downward
 				r_cnt <= r_cnt - 1'b1;
 			else if(i_dir == 1'b1)		// Counting upward
 				r_cnt <= r_cnt + 1'b1;
@@ -60,7 +57,6 @@ begin
 	end
 end
 //---------------------------------------------
-assign o_cnt = r_cnt;
-assign o_ovf_flg = (o_cnt == MAX);
+assign o_cnt_data = r_cnt;
 //---------------------------------------------
 endmodule
