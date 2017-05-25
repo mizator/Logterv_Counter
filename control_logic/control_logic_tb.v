@@ -34,39 +34,17 @@ module control_logic_tb;
 	wire	[15:0]	o_bus_data;
 	wire 			bus_ack;
 
-//	wire 			w_prs_en;
-//	wire 			w_prs_ld;
 	wire 	[7:0] 	prs_ld_data;
-//	reg 			r_prs_sclk;
-//	reg 			r_prs_sclk_rise;
-//	reg 			r_prs_sclk_fall;
-
-//	wire 			w_cnt_en;
-//	wire 			w_cnt_ld;
-//	wire 			w_cnt_dir;
-//	wire 			w_cnt_clr;
 	wire 	[15:0]	cnt_ld_data;
 	wire 	[15:0]	cnt_data;
-
-//	wire 			w_cap_en;
-//	wire 			w_cap_clr;
-//	reg 			r_cap_ic_flg;
-//	reg 	[15:0] 	r_cap_cnt_data;
 	wire 	[15:0] 	cap_cnt_data;
 
-
-parameter   ADDR_TCCR  = 4'b0001;
-parameter   ADDR_TCCR2 = 4'b0010;
-parameter   ADDR_TCNT  = 4'b0011;
-parameter   ADDR_OCR   = 4'b0100;
-parameter   ADDR_ICR   = 4'b0101;
-parameter   ADDR_TCST  = 4'b0110;
 
 
 //---------------------------------------------
 // Instantiate the Unit Under Test (UUT)
 //---------------------------------------------
-control_logic uut(	
+control_logic control_logic(	
 	.i_sysclk(r_clk),					// System Clock
 	.i_sysrst(r_rst),					// System Reset
 
@@ -154,13 +132,16 @@ input_capture input_capture (
 //-----------------------------------------------
 task bus_write (input [3:0] reg_addr, input [15:0] bus_data);
 begin
-	#10 r_reg_addr 		<= reg_addr;	// Select Register
-		r_i_bus_data 	<= bus_data;	// Write data to bus
-		r_bus_wr 		<= 1'b1;		// Write Select 
-		r_bus_select 	<= 1'b1;		// Select Target
-	wait(bus_ack);						// Wait For ACK
-	#10 r_bus_wr 		<= 1'b0;		// Release Write
-		r_bus_select 	<= 1'b0;		// Release Target
+	r_reg_addr 		<= reg_addr;	// Select Register Address
+	r_i_bus_data 	<= bus_data;	// Write data to bus
+	r_bus_wr 		<= 1'b1;		// Write Select 
+	r_bus_select 	<= 1'b1;		// Select Target
+	#10 wait(bus_ack);				// Wait For ACK
+	r_bus_wr 		<= 1'b0;		// Release Write
+	r_bus_select 	<= 1'b0;		// Release Target
+	r_i_bus_data	<= 16'b0;		// Release Data
+	r_reg_addr		<= 16'b0;		// Release Register Address
+	
 end
 endtask
 //-----------------------------------------------
@@ -171,16 +152,23 @@ endtask
 //-----------------------------------------------
 task bus_read (input [3:0] reg_addr);
 begin
-	#10 r_reg_addr 		<= reg_addr;	// Select Register
-		r_bus_wr 		<= 1'b0;		// Read Select
-		r_bus_select 	<= 1'b1;		// Select Target
-	wait(bus_ack);						// Wait For ACK
-	#10 r_bus_wr 		<= 1'b0;		// Release Write
-		r_bus_select 	<= 1'b0;		// Release Target
+	r_reg_addr 		<= reg_addr;	// Select Register
+	r_bus_wr 		<= 1'b0;		// Read Select
+	r_bus_select 	<= 1'b1;		// Select Target
+	#10 wait(bus_ack);				// Wait For ACK
+	r_bus_wr 		<= 1'b0;		// Release Write
+	r_bus_select 	<= 1'b0;		// Release Target
+	r_reg_addr		<= 16'b0;		// Release Register Address
+	
 end
 endtask
 //---------------------------------------------
-
+parameter   ADDR_TCCR  = 4'b0001;
+parameter   ADDR_TCCR2 = 4'b0010;
+parameter   ADDR_TCNT  = 4'b0011;
+parameter   ADDR_OCR   = 4'b0100;
+parameter   ADDR_ICR   = 4'b0101;
+parameter   ADDR_TCST  = 4'b0110;
 
 initial begin
 	// Initialize Inputs
@@ -191,30 +179,27 @@ initial begin
 	r_bus_wr = 0;
 	r_reg_addr = 4'b0;
 	r_i_bus_data = 16'b0;
-	
-//	r_prs_sclk = 0;
-//	r_prs_sclk_rise = 0;
-//	r_prs_sclk_fall = 0;
-//	r_cnt_data = 16'b0;	
-//	r_cap_ic_flg = 0;
-//	r_cap_cnt_data = 0;
 
     #60 r_rst = 0; 
-    bus_write(ADDR_TCCR , 16'b0000_0000_0111_1111);		// All interrupts enabled
-    bus_write(ADDR_TCCR2, 16'b0000_0000_0000_1111);		// TOP = 0xFF, Prescale 0x0F;
- //   bus_write(ADDR_TCNT , 16'b0000_0000_0000_0111);
-    bus_write(ADDR_OCR  , 16'b0000_1111_0000_1111);
- //   bus_write(ADDR_ICR  , 16'b0000_0000_0001_1111);
- //   bus_write(ADDR_TCST , 16'b0000_0000_0011_1111);
+    bus_write(ADDR_TCCR , 16'b0000_0111_1111_1111);
+	bus_write(ADDR_TCCR2, 16'h94_00);
+	bus_write(ADDR_OCR  , 16'b0000_1000_0000_0000);
+	bus_write(ADDR_TCNT , 16'h00_f0);
+    #300;
+    //bus_write(ADDR_TCCR , 16'b0000_0000_0010_1111);
+    #100;
+
+//    bus_write(ADDR_OCR  , 16'b0000_0000_0000_0100);
+//    bus_write(ADDR_ICR  , 16'b0000_0000_0000_0101);
+//    bus_write(ADDR_TCST , 16'h0000);
     #30;
     bus_read (ADDR_TCCR );
     bus_read (ADDR_TCCR2);
-//    bus_read (ADDR_TCNT);
-    bus_read (ADDR_OCR );
-//    bus_read (ADDR_ICR);
-//    bus_read (ADDR_TCST);
+    bus_read (ADDR_TCNT );
+    bus_read (ADDR_OCR  );
+    bus_read (ADDR_ICR  );
+    bus_read (ADDR_TCST);
 end
-
 
 
 //---------------------------------------------
@@ -222,8 +207,8 @@ end
 //---------------------------------------------
 always 
 begin
-    #21 r_cap_pin = 1;
-    #3  r_cap_pin = 0;  
+    #10 r_cap_pin = 1;
+    #10 r_cap_pin = 0;  
 end
 //---------------------------------------------
 
