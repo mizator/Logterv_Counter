@@ -67,7 +67,6 @@ control_logic control_logic(
 
 	.o_cnt_en(cnt_en),					// Counting Enable
 	.o_cnt_ld(cnt_ld),					// Counter  Load
-	.o_cnt_dir(cnt_dir),				// Counting Direction
 	.o_cnt_clr(cnt_clr),				// Counter  Clear
 	.o_cnt_ld_data(cnt_ld_data),		// Counter  Load Data
 	.i_cnt_data(cnt_data),				// Counter 	Data
@@ -99,12 +98,11 @@ prescaler prescaler(
 //---------------------------------------------
 // Instantiate Counter
 //---------------------------------------------
-counter counter(	
+counter counter(
 	.i_sysclk(r_clk),				
 	.i_sysrst(r_rst),				
 	.i_cnt_en(cnt_en),				 		
-	.i_ld(cnt_ld),					
-	.i_dir(cnt_dir),				
+	.i_ld(cnt_ld),									
 	.i_clr(cnt_clr),				
 	.i_ld_data(cnt_ld_data),				
 	.o_cnt_data(cnt_data)				
@@ -115,7 +113,7 @@ counter counter(
 //---------------------------------------------
 // Instantiate Input Capture
 //---------------------------------------------
-input_capture input_capture (
+input_capture input_capture(
 	.i_sysclk(r_clk),		
 	.i_sysrst(r_rst),		
 	.i_cap_pin(r_cap_pin),					
@@ -140,8 +138,7 @@ begin
 	r_bus_wr 		<= 1'b0;		// Release Write
 	r_bus_select 	<= 1'b0;		// Release Target
 	r_i_bus_data	<= 16'b0;		// Release Data
-	r_reg_addr		<= 16'b0;		// Release Register Address
-	
+	r_reg_addr		<= 16'b0;		// Release Register Address	
 end
 endtask
 //-----------------------------------------------
@@ -159,16 +156,82 @@ begin
 	r_bus_wr 		<= 1'b0;		// Release Write
 	r_bus_select 	<= 1'b0;		// Release Target
 	r_reg_addr		<= 16'b0;		// Release Register Address
-	
 end
 endtask
-//---------------------------------------------
-parameter   ADDR_TCCR  = 4'b0001;
-parameter   ADDR_TCCR2 = 4'b0010;
-parameter   ADDR_TCNT  = 4'b0011;
-parameter   ADDR_OCR   = 4'b0100;
-parameter   ADDR_ICR   = 4'b0101;
-parameter   ADDR_TCST  = 4'b0110;
+//---------------------------------------------------------
+
+
+//---------------------------------------------------------
+// Register Map
+//---------------------------------------------------------
+// TCCR  - Timer Counter Control Register
+// TCCR2 - Timer Counter Control Register
+// TCNT  - Timer Counter Value   Register
+// OCR   - Output Compare 		 Register
+// ICR   - Input Capture 		 Register
+// TCST  - Timer Counter Status  Register
+//---------------------------------------------------------
+// Timer Counter Control Register
+parameter		ADDR_TCCR 	= 4'b0001;			
+//TCCR[0]		Global 					  Enable	(0 - DIS _ 1 - EN)
+//TCCR[1]		Global   		Interrupt Enable 	(0 - DIS _ 1 - EN)
+//TCCR[2]		Overflow 		Interrupt Enable 	(0 - DIS _ 1 - EN)
+//TCCR[3]		CIC   Compare 	Interrupt Enable 	(0 - DIS _ 1 - EN) 	Counter or Input Capture
+//TCCR[4]		PWM   Compare 	Interrupt Enable 	(0 - DIS _ 1 - EN)
+//TCCR[5]		Input Capture 	Interrupt Enable	(0 - DIS _ 1 - EN)
+//TCCR[6]		Counting 				  Enable	(0 - DIS _ 1 - EN)					
+//TCCR[7]		Input 			Capture   Enable	(0 - DIS _ 1 - EN)
+//TCCR[8]		WMOD[0]								 Waveform Mode [0]				
+//TCCR[9]		WMOD[1]			 					 Waveform Mode [1]
+//TCCR[10]		Output Pin 				  Enable 	(0 - DIS _ 1 - EN)
+//TCCR[11]		Output Pin 		Polarity			(0 - NOR _ 1 - NEG)
+//TCCR[12]		Single/Periodic 		  Mode 		(0 - SIN _ 1 - PER)
+//---------------------------------------------------------
+// 			Waveform Mode 	  Bit		   Flag
+//---------------------------------------------------------
+parameter		NORMAL 		= 2'b00;	// CNT_OVF_FLG 	- Normal Mode
+parameter		COMC 		= 2'b01;	// CIC_CMP_FLG 	- Compare Inner Timer 	 with TOP
+parameter		COMI 		= 2'b10;	// CIC_CMP_FLG 	- Compare Input Capture with TOP
+parameter		PWM 		= 2'b11;	// PWM_CMP_FLG 	- Pulse Width Modulation
+//---------------------------------------------------------
+// Timer Counter Command Register 2
+parameter		ADDR_TCCR2 	= 4'b0010;
+//TCCR2[ 7:0] 	Prescale 		Value Configuration
+//TCCR2[11:8]	TOP 	 		Value Configuration
+//TCCR2[15:12]	COMPARE_PWM 	Value Configuration
+//---------------------------------------------------------
+//			TOP/COMPARE_PWM    Values
+parameter		OCR_V 		= 4'b0001;	// Output Compare Register Value
+parameter		ICR_V 		= 4'b0010;	// Input  Capture Register Value
+parameter		BIT08		= 4'b0011;	// 0x00FF
+parameter		BIT09		= 4'b0100;	// 0x01FF
+parameter		BIT10		= 4'b0101;	// 0x03FF
+parameter		BIT11		= 4'b0110;	// 0x07FF
+parameter		BIT12		= 4'b0111;	// 0x0FFF
+parameter		BIT13		= 4'b1000;	// 0x1FFF
+parameter		BIT14		= 4'b1001;	// 0x3FFF
+parameter		BIT15		= 4'b1010;	// 0x7FFF
+//---------------------------------------------------------
+// Timer-Counter Register, current counter value
+parameter		ADDR_TCNT 	= 4'b0011;	
+//---------------------------------------------------------
+// Output Compare Register, compared value	
+parameter		ADDR_OCR 	= 4'b0100;
+//---------------------------------------------------------
+// Input  Capture Register, current input counter value
+parameter		ADDR_ICR 	= 4'b0101;		
+//---------------------------------------------------------
+// Timer Counter Status Register
+parameter		ADDR_TCST 	= 4'b0110;
+//TCST[0]	Overflow 		Interrupt
+//TCST[1]	CIC 	Compare Interrupt
+//TCST[2]	PWM 	Compare Interrupt
+//TCST[3]	Input  	Capture Interrupt
+//TCST[4]	Input  	Capture Not Empty 	// Clearing this bit clears ICR Register
+//---------------------------------------------------------
+parameter 		MAX    = 16'hFFFF;
+parameter 		BOTTOM = 16'H0000;
+//---------------------------------------------------------
 
 initial begin
 	// Initialize Inputs
@@ -181,34 +244,39 @@ initial begin
 	r_i_bus_data = 16'b0;
 
     #60 r_rst = 0; 
-    bus_write(ADDR_TCCR , 16'b0000_0111_1111_1111);
-	bus_write(ADDR_TCCR2, 16'h94_00);
-	bus_write(ADDR_OCR  , 16'b0000_1000_0000_0000);
-	bus_write(ADDR_TCNT , 16'h00_f0);
-    #300;
-    //bus_write(ADDR_TCCR , 16'b0000_0000_0010_1111);
-    #100;
+    bus_write(ADDR_TCCR , 16'b0000_0111_1101_1111);
+	bus_write(ADDR_TCCR2, 16'h38_01);
+	#100
 
-//    bus_write(ADDR_OCR  , 16'b0000_0000_0000_0100);
-//    bus_write(ADDR_ICR  , 16'b0000_0000_0000_0101);
-//    bus_write(ADDR_TCST , 16'h0000);
+//	bus_write(ADDR_OCR  , 16'h02_FF);
+//	bus_write(ADDR_TCNT , 16'h00_F0);
+//	bus_write(ADDR_TCST , 16'h00_10);
+//	bus_write(8'h0a , 16'h00_F0);
+//  bus_write(ADDR_TCST , 16'h00_10);
+    #200000;
+//	bus_write(ADDR_TCCR2, 16'h38_02);
+
     #30;
-    bus_read (ADDR_TCCR );
-    bus_read (ADDR_TCCR2);
-    bus_read (ADDR_TCNT );
-    bus_read (ADDR_OCR  );
-    bus_read (ADDR_ICR  );
-    bus_read (ADDR_TCST);
+//    bus_read (ADDR_TCCR );
+//    bus_read (ADDR_TCCR2);
+//    bus_read (ADDR_TCNT );
+//    bus_read (ADDR_OCR  );
+//    bus_read (ADDR_ICR  );
+//    bus_read (8'h0a 	);
+//    bus_read (ADDR_TCST);
 end
-
+//    bus_write(ADDR_TCCR , 16'b0000_0000_0010_1111);
+//    bus_write(ADDR_OCR  , 16'b0000_0000_0000_0000);
+//    bus_write(ADDR_ICR  , 16'b0000_0000_0000_0000);
+//    bus_write(ADDR_TCST , 16'h0000);
 
 //---------------------------------------------
 // Generate Input Event
 //---------------------------------------------
 always 
 begin
-    #10 r_cap_pin = 1;
-    #10 r_cap_pin = 0;  
+    #7 r_cap_pin = 1;
+    #2 r_cap_pin = 0;  
 end
 //---------------------------------------------
 

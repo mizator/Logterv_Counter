@@ -24,7 +24,6 @@ module counter_tb;
     reg 			r_rst;
     reg 			r_cnt_en;
     reg				r_cnt_ld;
-    reg				r_cnt_dir;
     reg				r_cnt_clr;
     reg 	[15:0] 	r_cnt_ld_data;
 	wire	[15:0] 	cnt_data;
@@ -36,10 +35,9 @@ module counter_tb;
 //---------------------------------------------
 counter uut(	
 	.i_sysclk(r_clk),				
-	.i_sysrst(r_rst),				
+	.i_sysrst(r_rst),			
 	.i_cnt_en(r_cnt_en),				 		
 	.i_ld(r_cnt_ld),					
-	.i_dir(r_cnt_dir),				
 	.i_clr(r_cnt_clr),				
 	.i_ld_data(r_cnt_ld_data),				
 	.o_cnt_data(cnt_data)				
@@ -53,7 +51,6 @@ initial begin
 	r_clk = 1;
     r_rst = 1;
     r_cnt_en = 0;
-    r_cnt_dir = 1;
     r_cnt_clr = 0;
     r_cnt_ld = 0;
     r_cnt_ld_data = 16'h0000;
@@ -70,7 +67,6 @@ initial begin
     #10 r_cnt_ld = 1;
     #10 r_cnt_ld = 0;
     #20 r_cnt_en = 1;
-    #500 r_cnt_dir = 0;
 end
 //---------------------------------------------
 

@@ -48,7 +48,7 @@ begin
 		r_icap_1 	<= 1'b0;
 		r_icap_2 	<= 1'b0;
 	end
-	else
+	else if (i_cnt_en)
 	begin
 		r_icap_0 <= i_cap_pin;
 		r_icap_1 <= r_icap_0;
