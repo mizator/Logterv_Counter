@@ -54,7 +54,6 @@ module control_logic(
 	output			o_cap_clr,			// Input Capture Clear
 	input 			i_cap_ic_flg,		// Input Capture Flag
 	input 	[15:0]	i_cap_cnt_data		// Input Capture Data
-
 );
 //---------------------------------------------------------
 //---------------------------------------------------------
@@ -74,15 +73,18 @@ parameter		ADDR_TCCR 	= 4'b0001;
 //TCCR[1]		Global   		Interrupt Enable 	(0 - DIS _ 1 - EN)
 //TCCR[2]		Overflow 		Interrupt Enable 	(0 - DIS _ 1 - EN)
 //TCCR[3]		CIC   Compare 	Interrupt Enable 	(0 - DIS _ 1 - EN) 	Counter or Input Capture
+
 //TCCR[4]		PWM   Compare 	Interrupt Enable 	(0 - DIS _ 1 - EN)
 //TCCR[5]		Input Capture 	Interrupt Enable	(0 - DIS _ 1 - EN)
 //TCCR[6]		Counting 				  Enable	(0 - DIS _ 1 - EN)					
 //TCCR[7]		Input 			Capture   Enable	(0 - DIS _ 1 - EN)
+
 //TCCR[8]		WMOD[0]								 Waveform Mode [0]				
 //TCCR[9]		WMOD[1]			 					 Waveform Mode [1]
 //TCCR[10]		Output Pin 				  Enable 	(0 - DIS _ 1 - EN)
 //TCCR[11]		Output Pin 		Polarity			(0 - NOR _ 1 - NEG)
-//TCCR[12]		Single/Periodic 		  Mode 		(0 - SIN _ 1 - PER)
+
+//TCCR[12]		Periodic/Single 		  Mode 		(0 - PER _ 1 - SIN)
 //---------------------------------------------------------
 // 			Waveform Mode 	  Bit		   Flag
 //---------------------------------------------------------
@@ -127,8 +129,8 @@ parameter		ADDR_TCST 	= 4'b0110;
 //TCST[1]	CIC 	Compare Interrupt
 //TCST[2]	PWM 	Compare Interrupt
 //TCST[3]	Input  	Capture Interrupt
-//TCST[4]	Input  	Capture Not Empty 	// Clearing this bit clears ICR Register
-//TCST[5]	Single  Period  Finished	// Clearing this bit starts over period
+//TCST[4]	Single  Period  Finished	// Clearing this bit starts over period
+//TCST[5]	Input  	Capture Not Empty 	// Clearing this bit clears ICR Register
 //---------------------------------------------------------
 parameter 		MAX    = 16'hFFFF;
 parameter 		BOTTOM = 16'H0000;
@@ -160,6 +162,7 @@ begin
 		TCCR  		<= 16'b0;
 		TCCR2 		<= 16'b0;
 		OCR   		<= 16'b0;
+		TCST 		<= 16'b0;
 		ERROR 		<= 16'b0;
 	end 
 	else begin
@@ -229,6 +232,15 @@ begin
 			r_cnt_ld_signal_BUS <= 0;							// Clear Counter load signal
 			r_cap_clr_BUS 		<= 0;							// Clear Capture clear signal										
 		end
+		if (~(i_bus_select & i_bus_wr & (i_reg_addr == ADDR_TCST))) begin
+			TCST <= {10'b0,	
+					((|i_cap_cnt_data) & (~r_cap_clr_BUS)) ? 1'b1 : 1'b0,		// ICR Not Empty and Wont be Cleared
+					(TCCR[12] & (w_CIC_CMP_FLG || w_CNT_OVF_FLG))? 1'b1 : TCST[4],
+					(TCCR[1] & TCCR[5] &   i_cap_ic_flg) ? 1'b1 : TCST[3],		// Input    Capture	Interrupt		
+					(TCCR[1] & TCCR[4] &  w_PWM_CMP_FLG) ? 1'b1 : TCST[2],		// PWM 		Compare Interrupt
+					(TCCR[1] & TCCR[3] &  w_CIC_CMP_FLG) ? 1'b1 : TCST[1], 		// Compare  Match 	Interrupt
+					(TCCR[1] & TCCR[2] &  w_CNT_OVF_FLG) ? 1'b1 : TCST[0]};		// Overflow 		Interrupt
+		end
 	end
 end
 //---------------------------------------------------------
@@ -238,24 +250,6 @@ assign o_bus_data =  r_obus_data;
 assign o_bus_ack  =  (r_ack)?1:0;
 //---------------------------------------------------------
 
-//---------------------------------------------------------
-// Status Register Refresh
-//---------------------------------------------------------
-always @(posedge i_sysclk) 
-begin
-	if (i_sysrst) begin
-		TCST <= 16'b0;
-	end
-	else if (~(i_bus_select & i_bus_wr & (i_reg_addr == ADDR_TCST))) begin
-		TCST <= {11'b0,	
-					((|i_cap_cnt_data) & (~r_cap_clr_BUS)) ? 1'b1 : 1'b0,		// ICR Not Empty and Wont be Cleared
-					(TCCR[1] & TCCR[5] &   i_cap_ic_flg) ? 1'b1 : TCST[3],		// Input    Capture	Interrupt		
-					(TCCR[1] & TCCR[4] &  w_PWM_CMP_FLG) ? 1'b1 : TCST[2],		// PWM 		Compare Interrupt
-					(TCCR[1] & TCCR[3] &  w_CIC_CMP_FLG) ? 1'b1 : TCST[1], 		// Compare  Match 	Interrupt
-					(TCCR[1] & TCCR[2] &  w_CNT_OVF_FLG) ? 1'b1 : TCST[0]};		// Overflow 		Interrupt
-	end
-end
-//---------------------------------------------------------
 
 //---------------------------------------------------------
 // TOP Value Setting  	//	The Counter counting until reaches this value
@@ -386,9 +380,10 @@ begin
 			  			  end
 			  	COMI 	: begin 							// Input Capture Compare Mode 
 			  				r_cnt_clr_WF  <= 0;				// Never Clear Counter from Waveform
-			  				if(i_cap_cnt_data == TOP) 		// If Input Capture Reaches TOP value
+			  				if((i_cap_cnt_data == TOP) 		// If Input Capture Reaches TOP value
+			  				  && (~r_cap_clr_WF))
 			  				begin
-			  					r_output <= ~r_output; 		// Output toggles
+			  					
 			  					r_CIC_CMP_FLG <= 1; 		// Compare Flag 1
 			  					r_cap_clr_WF  <= 1;			// Capture Clear Waveform 1
 			  				end
@@ -396,6 +391,8 @@ begin
 			  				begin 								
 			  					r_CIC_CMP_FLG <= 0;			// Compare Flag 0
 			  			  		r_cap_clr_WF  <= 0;			// Capture Clear Waveform 0
+			  			  		if(r_cap_clr_WF)
+			  			  			r_output <= ~r_output; 		// Output toggles
 			  			  	end
 			  			  end
 			  	PWM 	: begin 							// PWM mode
@@ -409,17 +406,20 @@ begin
 			  					r_CIC_CMP_FLG <= 0;			// Compare Flag  0
 			  			  		r_cnt_clr_WF  <= 0;			// Counter Clear 0
 			  			  	end
-			  				if(i_cap_cnt_data == TOP) 		// If Input Capture Reaches TOP value
+			  				if((i_cap_cnt_data == TOP)
+			  					&& (~r_cap_clr_WF))   		// If Input Capture Reaches TOP value
 			  				begin
-			  					r_CIC_CMP_FLG <= 1; 		// Compare Flag 1
 			  					r_cap_clr_WF  <= 1;			// Capture Clear Waveform 1
 			  				end
 			  				else 							
 			  				begin 								
-			  					r_CIC_CMP_FLG <= 0;			// Compare Flag 0
 			  			  		r_cap_clr_WF  <= 0;			// Capture Clear Waveform 0
 			  			  	end
-			  				if(i_cnt_data <= COMPARE_PWM)	// If Counter is smaller or equal to COMPARE_PWM value 
+			  				if (((i_cnt_data < COMPARE_PWM)
+			  				 	|| ((i_cnt_data == COMPARE_PWM)
+			  					&& (~i_prs_sclk_rise)))
+			  					|| ((i_cnt_data == TOP)
+			  					&& (i_prs_sclk_rise)))		// If Counter is smaller or equal to COMPARE_PWM value 
 			  					r_output <= 1; 				// Output 1
 			  				else 							
 			  					r_output <= 0; 				// Output 0
@@ -464,7 +464,11 @@ begin
 end
 //---------------------------------------------------------
 assign w_CNT_OVF_FLG = (r_CNT_OVF && i_prs_sclk_rise);		// Overflow Flag when Counter Reaches BOTTOM value
-assign w_CIC_CMP_FLG = (r_CIC_CMP_FLG && i_prs_sclk_rise);	// Capture Compare Flag
+assign w_CIC_CMP_FLG =   (TCCR[9:8] == NORMAL) ? 0 : 
+						((TCCR[9:8] == COMC) 				// Capture Compare Flag
+					   ||(TCCR[9:8] == PWM))  ? (r_CIC_CMP_FLG && i_prs_sclk_rise) :
+						(TCCR[9:8] == COMI)   ? (r_CIC_CMP_FLG && r_cap_clr_WF): 0;
+						
 assign w_PWM_CMP_FLG = (r_PWM_CMP_FLG && (i_prs_sclk_rise));// PWM Compare Flag
 assign o_int_flg = (|(TCST[3:0]));							// Status Register Interrupt Flags
 //---------------------------------------------------------
@@ -473,12 +477,15 @@ assign o_int_flg = (|(TCST[3:0]));							// Status Register Interrupt Flags
 //---------------------------------------------------------
 // Prescaler Control Signals
 //---------------------------------------------------------
+wire w_prs_block;
+assign w_prs_block = (TCST[4] && (TCCR[9:8] != COMI));
 assign o_prs_ld = r_prs_ld_signal_BUS;						// Prescaler Load Signal
 assign o_prs_ld_data = (r_prs_ld_signal_BUS) 				// if Prescaler Load Signal
 					  ? TCCR2[7:0]: 8'b0;					// Load Prescale Value
 assign o_prs_en = (TCCR[0] 									// Global Enable
 				&& TCCR[6] 									// and Counting Enable
-				&& (~r_prs_ld_signal_BUS)); 	  			//and Not Prescaler Load
+				&& (~r_prs_ld_signal_BUS)
+				&& (~w_prs_block)); 	  			//and Not Prescaler Load
 //---------------------------------------------------------
 
 
@@ -486,10 +493,12 @@ assign o_prs_en = (TCCR[0] 									// Global Enable
 // Input Capture Control Signals
 //---------------------------------------------------------
 wire w_cap_clr;
+wire w_cap_block;
+assign w_cap_block = (TCST[4] && (TCCR[9:8] == COMI));
 assign w_cap_clr = (r_cap_clr_BUS || r_cap_clr_WF); 		// Input Capture Clear from Bus or Waveform
-assign o_cap_en  =  (	TCCR[0] 							// Global Enable
-					&& 	TCCR[7]								// and Input Capture Enable
-					&& 	(~w_cap_clr));	  					// and Not Capture Clear
+assign o_cap_en  =  (	TCCR[0] && 	TCCR[7] && 	(~w_cap_clr)
+						&& (~w_cap_block));							// Global Enable 								// and Input Capture Enable
+						  										// and Not Capture Clear
 assign o_cap_clr = w_cap_clr;								// Input Capture Clear 				
 //---------------------------------------------------------
 
@@ -497,9 +506,12 @@ assign o_cap_clr = w_cap_clr;								// Input Capture Clear
 //---------------------------------------------------------
 // Counter Control Signals
 //---------------------------------------------------------
+wire w_cnt_block;
+assign w_cnt_block = (TCST[4] && (TCCR[9:8] != COMI));
 assign o_cnt_en  = 	 (TCCR[0] && TCCR[6]  						// Counting Enable
 					  && i_prs_sclk_rise  
-					  && (~r_cnt_ld_signal_BUS));
+					  && (~r_cnt_ld_signal_BUS)
+					  && (~w_cnt_block));
 assign o_cnt_ld  	 = (r_cnt_ld_signal_BUS);						
 assign o_cnt_ld_data = (r_cnt_ld_signal_BUS) 
 					  ? r_TCNT_data : 16'b0;

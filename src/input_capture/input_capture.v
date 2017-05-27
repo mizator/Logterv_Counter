@@ -54,6 +54,12 @@ begin
 		r_icap_1 <= r_icap_0;
 		r_icap_2 <= r_icap_1;
 	end
+	else 
+	begin
+		r_icap_0 	<= 1'b0;
+		r_icap_1 	<= 1'b0;
+		r_icap_2 	<= 1'b0;
+	end
 end
 //---------------------------------------------
 assign w_cap_rise = ((~r_icap_2) & r_icap_1);

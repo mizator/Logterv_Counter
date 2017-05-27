@@ -85,7 +85,6 @@ control_logic control_logic(
 
 	.o_cnt_en(cnt_en),
 	.o_cnt_ld(cnt_ld),
-	.o_cnt_dir(cnt_dir),
 	.o_cnt_clr(cnt_clr),
 	.o_cnt_ld_data(cnt_ld_data),
 	.i_cnt_data(cnt_data),
@@ -121,11 +120,10 @@ counter counter(
 	.i_sysclk(i_sysclk),			
 	.i_sysrst(i_sysrst),			
 	.i_cnt_en(cnt_en),						
-	.i_ld(cnt_ld),					
-	.i_dir(cnt_dir),				
+	.i_ld(cnt_ld),								
 	.i_clr(cnt_clr),				
 	.i_ld_data(cnt_ld_data),			
-	.o_cnt(cnt_data)				
+	.o_cnt_data(cnt_data)				
 );
 //---------------------------------------------
 

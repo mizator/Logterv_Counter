@@ -177,15 +177,18 @@ parameter		ADDR_TCCR 	= 4'b0001;
 //TCCR[1]		Global   		Interrupt Enable 	(0 - DIS _ 1 - EN)
 //TCCR[2]		Overflow 		Interrupt Enable 	(0 - DIS _ 1 - EN)
 //TCCR[3]		CIC   Compare 	Interrupt Enable 	(0 - DIS _ 1 - EN) 	Counter or Input Capture
+
 //TCCR[4]		PWM   Compare 	Interrupt Enable 	(0 - DIS _ 1 - EN)
 //TCCR[5]		Input Capture 	Interrupt Enable	(0 - DIS _ 1 - EN)
 //TCCR[6]		Counting 				  Enable	(0 - DIS _ 1 - EN)					
 //TCCR[7]		Input 			Capture   Enable	(0 - DIS _ 1 - EN)
+
 //TCCR[8]		WMOD[0]								 Waveform Mode [0]				
 //TCCR[9]		WMOD[1]			 					 Waveform Mode [1]
 //TCCR[10]		Output Pin 				  Enable 	(0 - DIS _ 1 - EN)
 //TCCR[11]		Output Pin 		Polarity			(0 - NOR _ 1 - NEG)
-//TCCR[12]		Single/Periodic 		  Mode 		(0 - SIN _ 1 - PER)
+
+//TCCR[12]		Periodic/Single 		  Mode 		(0 - PER _ 1 - SIN)
 //---------------------------------------------------------
 // 			Waveform Mode 	  Bit		   Flag
 //---------------------------------------------------------
@@ -227,7 +230,8 @@ parameter		ADDR_TCST 	= 4'b0110;
 //TCST[1]	CIC 	Compare Interrupt
 //TCST[2]	PWM 	Compare Interrupt
 //TCST[3]	Input  	Capture Interrupt
-//TCST[4]	Input  	Capture Not Empty 	// Clearing this bit clears ICR Register
+//TCST[4]	Single  Period  Finished	// Clearing this bit starts over period
+//TCST[5]	Input  	Capture Not Empty 	// Clearing this bit clears ICR Register
 //---------------------------------------------------------
 parameter 		MAX    = 16'hFFFF;
 parameter 		BOTTOM = 16'H0000;
@@ -244,10 +248,12 @@ initial begin
 	r_i_bus_data = 16'b0;
 
     #60 r_rst = 0; 
-    bus_write(ADDR_TCCR , 16'b0000_0111_1101_1111);
-	bus_write(ADDR_TCCR2, 16'h38_01);
+    bus_write(ADDR_TCCR , 16'b0001_0111_1100_1111);
+	bus_write(ADDR_TCCR2, 16'h34_01);
 	#100
-
+	wait(int_flg);
+	#200
+	bus_write(ADDR_TCST , 16'h00_00);
 //	bus_write(ADDR_OCR  , 16'h02_FF);
 //	bus_write(ADDR_TCNT , 16'h00_F0);
 //	bus_write(ADDR_TCST , 16'h00_10);
