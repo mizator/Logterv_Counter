@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="D:/Programok/Work/FPGA/Work/counter_log/prescaler_tb_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="prescaler_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="6" />
+   <wvobject fp_name="/prescaler_tb/r_rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_rst</obj_property>
+      <obj_property name="ObjectShortName">r_rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/prescaler_tb/r_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_clk</obj_property>
+      <obj_property name="ObjectShortName">r_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/prescaler_tb/r_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_en</obj_property>
+      <obj_property name="ObjectShortName">r_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/prescaler_tb/r_ld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_ld</obj_property>
+      <obj_property name="ObjectShortName">r_ld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/prescaler_tb/r_scale_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">r_scale_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">r_scale_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="group9" type="group">
+      <obj_property name="label">sclk</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/prescaler_tb/sclk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">sclk</obj_property>
+         <obj_property name="ObjectShortName">sclk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/prescaler_tb/sclk_rise" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">sclk_rise</obj_property>
+         <obj_property name="ObjectShortName">sclk_rise</obj_property>
+      </wvobject>
+      <wvobject fp_name="/prescaler_tb/sclk_fall" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">sclk_fall</obj_property>
+         <obj_property name="ObjectShortName">sclk_fall</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

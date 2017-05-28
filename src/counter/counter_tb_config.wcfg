@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="D:/Programok/Work/FPGA/Work/counter_log/counter_tb_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="counter_tb" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="8" />
+   <wvobject fp_name="/counter_tb/r_rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_rst</obj_property>
+      <obj_property name="ObjectShortName">r_rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/counter_tb/r_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_clk</obj_property>
+      <obj_property name="ObjectShortName">r_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/counter_tb/r_cnt_ld_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">r_cnt_ld_data[15:0]</obj_property>
+      <obj_property name="ObjectShortName">r_cnt_ld_data[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/counter_tb/r_cnt_ld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_cnt_ld</obj_property>
+      <obj_property name="ObjectShortName">r_cnt_ld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/counter_tb/r_cnt_clr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_cnt_clr</obj_property>
+      <obj_property name="ObjectShortName">r_cnt_clr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/counter_tb/r_cnt_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_cnt_en</obj_property>
+      <obj_property name="ObjectShortName">r_cnt_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/counter_tb/r_cnt_dir" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_cnt_dir</obj_property>
+      <obj_property name="ObjectShortName">r_cnt_dir</obj_property>
+   </wvobject>
+   <wvobject fp_name="/counter_tb/w_count" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">w_count[15:0]</obj_property>
+      <obj_property name="ObjectShortName">w_count[15:0]</obj_property>
+   </wvobject>
+</wave_config>

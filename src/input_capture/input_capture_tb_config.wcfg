@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="D:/Programok/Work/FPGA/Work/counter_log/input_capture_tb_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="input_capture_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="7" />
+   <wvobject fp_name="/input_capture_tb/r_rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_rst</obj_property>
+      <obj_property name="ObjectShortName">r_rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/input_capture_tb/r_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_clk</obj_property>
+      <obj_property name="ObjectShortName">r_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/input_capture_tb/r_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_en</obj_property>
+      <obj_property name="ObjectShortName">r_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/input_capture_tb/r_cap_pin" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_cap_pin</obj_property>
+      <obj_property name="ObjectShortName">r_cap_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/input_capture_tb/r_clr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_clr</obj_property>
+      <obj_property name="ObjectShortName">r_clr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/input_capture_tb/ic_flg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ic_flg</obj_property>
+      <obj_property name="ObjectShortName">ic_flg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/input_capture_tb/w_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">w_cnt[15:0]</obj_property>
+      <obj_property name="ObjectShortName">w_cnt[15:0]</obj_property>
+   </wvobject>
+</wave_config>
