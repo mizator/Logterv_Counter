@@ -247,7 +247,7 @@ end
 // Acknowledge and Output Data Generation
 //---------------------------------------------------------
 assign o_bus_data =  r_obus_data;
-assign o_bus_ack  =  (r_ack)?1:0;
+assign o_bus_ack  =  (r_ack) ? 1'b1 : 1'b0;
 //---------------------------------------------------------
 
 
@@ -464,10 +464,10 @@ begin
 end
 //---------------------------------------------------------
 assign w_CNT_OVF_FLG = (r_CNT_OVF && i_prs_sclk_rise);		// Overflow Flag when Counter Reaches BOTTOM value
-assign w_CIC_CMP_FLG =   (TCCR[9:8] == NORMAL) ? 0 : 
+assign w_CIC_CMP_FLG =   (TCCR[9:8] == NORMAL) ? 1'b0 : 
 						((TCCR[9:8] == COMC) 				// Capture Compare Flag
 					   ||(TCCR[9:8] == PWM))  ? (r_CIC_CMP_FLG && i_prs_sclk_rise) :
-						(TCCR[9:8] == COMI)   ? (r_CIC_CMP_FLG && r_cap_clr_WF): 0;
+						(TCCR[9:8] == COMI)   ? (r_CIC_CMP_FLG && r_cap_clr_WF): 1'b0;
 						
 assign w_PWM_CMP_FLG = (r_PWM_CMP_FLG && (i_prs_sclk_rise));// PWM Compare Flag
 assign o_int_flg = (|(TCST[3:0]));							// Status Register Interrupt Flags

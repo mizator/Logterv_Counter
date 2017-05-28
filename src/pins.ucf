@@ -1,0 +1,7 @@
+# 50 MHz órajelgenerátor
+NET i_sysclk LOC=P55 | IOSTANDARD=LVCMOS33 | TNM_NET=tnm_i_sysclk;
+TIMESPEC TS_i_sysclk = PERIOD tnm_i_sysclk 50000 kHz;
+
+# Manuális RST nyomógomb (aktív alacsony)
+ NET i_sysrst  LOC=P67 | IOSTANDARD=LVCMOS33 | PULLUP | TIG;
+

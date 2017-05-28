@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="D:/Programok/Work/FPGA/Work/counter_log/control_logic_tb_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="control_logic_tb" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="9" />
+   <wvobject fp_name="/control_logic_tb/r_rst" type="logic" db_ref_id="1">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">r_rst</obj_property>
+      <obj_property name="ObjectShortName">r_rst</obj_property>
+      <obj_property name="label">r_rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/control_logic_tb/r_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_clk</obj_property>
+      <obj_property name="ObjectShortName">r_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="group104" type="group">
+      <obj_property name="label">Bus</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/control_logic_tb/r_bus_select" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">r_bus_select</obj_property>
+         <obj_property name="ObjectShortName">r_bus_select</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/r_bus_wr" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">r_bus_wr</obj_property>
+         <obj_property name="ObjectShortName">r_bus_wr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/r_reg_addr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">r_reg_addr[3:0]</obj_property>
+         <obj_property name="ObjectShortName">r_reg_addr[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/r_i_bus_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">r_i_bus_data[15:0]</obj_property>
+         <obj_property name="ObjectShortName">r_i_bus_data[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/o_bus_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">o_bus_data[15:0]</obj_property>
+         <obj_property name="ObjectShortName">o_bus_data[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/bus_ack" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">bus_ack</obj_property>
+         <obj_property name="ObjectShortName">bus_ack</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group70" type="group">
+      <obj_property name="label">Internal Register</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/control_logic_tb/control_logic/TCCR" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">TCCR[15:0]</obj_property>
+         <obj_property name="ObjectShortName">TCCR[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/TCCR2" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">TCCR2[15:0]</obj_property>
+         <obj_property name="ObjectShortName">TCCR2[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/OCR" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">OCR[15:0]</obj_property>
+         <obj_property name="ObjectShortName">OCR[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/TCST" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">TCST[15:0]</obj_property>
+         <obj_property name="ObjectShortName">TCST[15:0]</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/TOP" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">TOP[15:0]</obj_property>
+         <obj_property name="ObjectShortName">TOP[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/COMPARE_PWM" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">COMPARE_PWM[15:0]</obj_property>
+         <obj_property name="ObjectShortName">COMPARE_PWM[15:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group101" type="group">
+      <obj_property name="label">Prescaler</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/control_logic_tb/prs_en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">prs_en</obj_property>
+         <obj_property name="ObjectShortName">prs_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/prs_ld" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">prs_ld</obj_property>
+         <obj_property name="ObjectShortName">prs_ld</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/prs_ld_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">prs_ld_data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">prs_ld_data[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/prs_sclk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">prs_sclk</obj_property>
+         <obj_property name="ObjectShortName">prs_sclk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/prs_sclk_rise" type="logic" db_ref_id="1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">prs_sclk_rise</obj_property>
+         <obj_property name="ObjectShortName">prs_sclk_rise</obj_property>
+         <obj_property name="label">prs_sclk_rise</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/prs_sclk_fall" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">prs_sclk_fall</obj_property>
+         <obj_property name="ObjectShortName">prs_sclk_fall</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/prescaler/r_div_value" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">r_div_value[7:0]</obj_property>
+         <obj_property name="ObjectShortName">r_div_value[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group102" type="group">
+      <obj_property name="label">Counter</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/control_logic_tb/cnt_en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cnt_en</obj_property>
+         <obj_property name="ObjectShortName">cnt_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/cnt_ld" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cnt_ld</obj_property>
+         <obj_property name="ObjectShortName">cnt_ld</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/cnt_ld_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cnt_ld_data[15:0]</obj_property>
+         <obj_property name="ObjectShortName">cnt_ld_data[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/cnt_clr" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cnt_clr</obj_property>
+         <obj_property name="ObjectShortName">cnt_clr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/cnt_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cnt_data[15:0]</obj_property>
+         <obj_property name="ObjectShortName">cnt_data[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/r_cnt_clr_WF" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">r_cnt_clr_WF</obj_property>
+         <obj_property name="ObjectShortName">r_cnt_clr_WF</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/w_CNT_OVF_FLG" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">w_CNT_OVF_FLG</obj_property>
+         <obj_property name="ObjectShortName">w_CNT_OVF_FLG</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/w_CIC_CMP_FLG" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">w_CIC_CMP_FLG</obj_property>
+         <obj_property name="ObjectShortName">w_CIC_CMP_FLG</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/r_CIC_CMP_FLG" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">r_CIC_CMP_FLG</obj_property>
+         <obj_property name="ObjectShortName">r_CIC_CMP_FLG</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/w_PWM_CMP_FLG" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">w_PWM_CMP_FLG</obj_property>
+         <obj_property name="ObjectShortName">w_PWM_CMP_FLG</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group103" type="group">
+      <obj_property name="label">Input Capture</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/control_logic_tb/r_cap_pin" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">r_cap_pin</obj_property>
+         <obj_property name="ObjectShortName">r_cap_pin</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/cap_en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cap_en</obj_property>
+         <obj_property name="ObjectShortName">cap_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/r_cap_clr_BUS" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">r_cap_clr_BUS</obj_property>
+         <obj_property name="ObjectShortName">r_cap_clr_BUS</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/cap_ic_flg" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cap_ic_flg</obj_property>
+         <obj_property name="ObjectShortName">cap_ic_flg</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/control_logic/r_cap_clr_WF" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">r_cap_clr_WF</obj_property>
+         <obj_property name="ObjectShortName">r_cap_clr_WF</obj_property>
+      </wvobject>
+      <wvobject fp_name="/control_logic_tb/cap_cnt_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cap_cnt_data[15:0]</obj_property>
+         <obj_property name="ObjectShortName">cap_cnt_data[15:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/control_logic_tb/int_flg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">int_flg</obj_property>
+      <obj_property name="ObjectShortName">int_flg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/control_logic_tb/cout_pin" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cout_pin</obj_property>
+      <obj_property name="ObjectShortName">cout_pin</obj_property>
+   </wvobject>
+</wave_config>
